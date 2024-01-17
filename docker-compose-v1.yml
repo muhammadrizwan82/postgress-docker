@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  postgres:
+    container_name: container-pg
+    image: postgres:${POSTGRES_VERSION}
+    hostname: localhost
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: circuare
+      POSTGRES_PASSWORD: "admin"
+      POSTGRES_DB: circuare
+    volumes:
+      - ./meta/database:/var/lib/postgresql/data  
+    healthcheck:
+      test: pg_isready -U circuare
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+  pgadmin:
+    container_name: container-pgadmin
+    image: dpage/pgadmin4    
+    ports:
+      - "8888:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: "admin123"
+    volumes:
+      - ./meta/pgadmin:/pgadmin
+    restart: unless-stopped
